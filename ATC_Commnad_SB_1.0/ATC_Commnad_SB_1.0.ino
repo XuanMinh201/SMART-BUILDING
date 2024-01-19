@@ -33,6 +33,7 @@
 
 #define boot_button PH3
 #define LED PA0
+#define PIR PB5
 #define DATA_INTERVAL 5000 // ms
 #define LS_ADC_AREF 3.0f
 #define LS_BATVOLT_R1 1.0f
@@ -46,7 +47,8 @@ SensirionI2CScd4x scd4x;
 BME680_Class BME680;  ///< Create an instance of the BME680 class
 
 
-
+int pirState = LOW;             // we start, assuming no motion detected
+int val = 0;
 unsigned char gain = 0;   // Gain setting, values = 0-7
 unsigned char integrationTime = 0; // Integration ("shutter") time in milliseconds
 uint16_t voltage_adc;
@@ -755,7 +757,76 @@ int ldo_read(SERIAL_PORT port, char *cmd, stParam *param)
     return AT_OK;
   }
 }
+void PIR_statr() {
+  val = digitalRead(PIR);  // read input value
+  if (val == HIGH) {            // check if the input is HIGH
+    digitalWrite(LED, HIGH);  // turn LED ON
+    if (pirState == LOW) {
+      // we have just turned on
+      Serial.println("1");
+      Serial1.println("1");
+      // We only want to print on the output change, not state
+      pirState = HIGH;
+    }
+  } else {
+    digitalWrite(LED, LOW); // turn LED OFF
+    if (pirState == HIGH) {
+      // we have just turned of
+      Serial.println("0");
+      Serial1.println("0");
+      // We only want to print on the output change, not state
+      pirState = LOW;
+    }
+  }
+}
+uint32_t led_status;
+int led_handle(SERIAL_PORT port, char *cmd, stParam *param) {
+  if (param->argc == 1 && !strcmp(param->argv[0], "?")) {
+    Serial.print(cmd);
+    Serial.print("=");
+    Serial.println(led_status ? "HIGH" : "LOW");
+  } else if (param->argc == 1) {
+    for (int i = 0 ; i < strlen(param->argv[0]) ; i++) {
+      if (!isdigit(*(param->argv[0] + i))) {
+        return AT_PARAM_ERROR;
+      }
+    }
+    led_status = strtoul(param->argv[0], NULL, 10);
+    if (led_status != 0 && led_status != 1) {
+      return AT_PARAM_ERROR;
+    }
+    digitalWrite(LED, (led_status == 1) ? HIGH : LOW);
 
+  } else {
+    return AT_PARAM_ERROR;
+  }
+
+  return AT_OK;
+}
+bool PIR_STATUS = 0;
+int PIR_ACTIVE(SERIAL_PORT port, char *cmd, stParam *param) {
+  digitalWrite(LED, LOW);
+  if (param->argc == 1 && !strcmp(param->argv[0], "?")) {
+    Serial.print(cmd);
+    Serial.print("=");
+    Serial.println(PIR_STATUS ? "HIGH" : "LOW");
+  } else if (param->argc == 1) {
+    for (int i = 0 ; i < strlen(param->argv[0]) ; i++) {
+      if (!isdigit(*(param->argv[0] + i))) {
+        return AT_PARAM_ERROR;
+      }
+    }
+    PIR_STATUS = strtoul(param->argv[0], NULL, 10);
+    if (PIR_STATUS != 0 && PIR_STATUS != 1) {
+      return AT_PARAM_ERROR;
+    }
+
+  } else {
+    return AT_PARAM_ERROR;
+  }
+
+  return AT_OK;
+}
 
 float altitude(const int32_t press, const float seaLevel = 1013.25);
 float altitude(const int32_t press, const float seaLevel) {
@@ -778,7 +849,7 @@ void setup()
 {
   Serial.begin(115200, RAK_AT_MODE);
   Serial1.begin(115200, RAK_AT_MODE);
-
+  pinMode(PIR, INPUT);
   pinMode(boot_button, INPUT);
   pinMode(LED, OUTPUT);
   digitalWrite(LED, LOW);
@@ -810,6 +881,9 @@ void setup()
 
   api.system.atMode.add("VER", "Return firmware version", "VER", ATC_Ver, RAK_ATCMD_PERM_READ);
 
+  api.system.atMode.add("LED", "1 - LED Active // 0 - LED Inactive", "LED", led_handle, RAK_ATCMD_PERM_WRITE | RAK_ATCMD_PERM_READ);
+  api.system.atMode.add("PIRACT", "1 - PIR Active // 0 - PIR Inactive", "PIRACT", PIR_ACTIVE, RAK_ATCMD_PERM_WRITE | RAK_ATCMD_PERM_READ);
+
   api.system.atMode.add("SCDCO2", "Return the value CO2 of SCD41.", "SCDCO2", scd41_co2, RAK_ATCMD_PERM_READ);
   api.system.atMode.add("SCDTEMP", "Return the temperature value with 0.01° resolution", "SCDTEMP", SHTC3_temp, RAK_ATCMD_PERM_READ);
   api.system.atMode.add("SCDHUM", "Return the humidity value with 1% resolution", "SCDHUM", SHTC3_humi, RAK_ATCMD_PERM_READ);
@@ -839,6 +913,9 @@ void setup()
 
 void loop()
 {
-
+  if (PIR_STATUS)
+  {
+    PIR_statr();
+  }
 
 }
