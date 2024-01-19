@@ -61,10 +61,11 @@ Command general format: ```ATC+<cmd>=?```
 <!-- ![image](https://github.com/XuanMinh201/RF210/assets/75436464/ea7faa22-7082-44b6-a6ea-442fadfd687f) -->
 <img src="https://github.com/XuanMinh201/RF210/assets/75436464/ea7faa22-7082-44b6-a6ea-442fadfd687f" height="450">
 
-### On the RF210 board:
+### On the RF210_SB board:
 
-<!-- ![image](https://github.com/XuanMinh201/RF210/assets/75436464/9c0f2eca-0ba7-4fdb-ba18-9b7516c0776f) -->
-<img src="https://github.com/XuanMinh201/RF210/assets/75436464/9c0f2eca-0ba7-4fdb-ba18-9b7516c0776f" height="450">
+<!-- ![image](https://github.com/XuanMinh201/SMART-BUILDING/assets/75436464/54157f08-2bba-46f8-a7ce-686ccdbba386) -->
+<img src = "https://github.com/XuanMinh201/SMART-BUILDING/assets/75436464/54157f08-2bba-46f8-a7ce-686ccdbba386" height="450">
+
 
 ### In STM32CubeProgammer:
   -  Hold the **B_RAK (boot)** button and press **R_RAK (reset)** button and release the **B_RAK (boot)** button to enter bootmode.
