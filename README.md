@@ -10,6 +10,7 @@ Supported sensors:
 - [Indicator for indoor air quality - SCD40](https://sensirion.com/products/catalog/SCD40)
 - [High Sensitivity Digital PIR Modlue - SB412](https://www.senbasensor.com/pir-sensor-module/sb412.html)
 - [High Sensitivity Digital PIR Modlue - SB412](https://www.senbasensor.com/pir-sensor-module/sb412.html)
+  
 Command general format: ```ATC+<cmd>=?```
 
 - ```ATC+VER=?``` : return version of the firmware
