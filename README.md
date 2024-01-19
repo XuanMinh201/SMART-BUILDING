@@ -9,7 +9,7 @@ Supported sensors:
 - [Ambient Light Sensor - LTR-303ALS-01](https://optoelectronics.liteon.com/en-global/Led/led-component/Detail/926)
 - [Indicator for indoor air quality - SCD40](https://sensirion.com/products/catalog/SCD40)
 - [High Sensitivity Digital PIR Modlue - SB412](https://www.senbasensor.com/pir-sensor-module/sb412.html)
-- [High Sensitivity Digital PIR Modlue - SB412](https://www.senbasensor.com/pir-sensor-module/sb412.html)
+
   
 Command general format: ```ATC+<cmd>=?```
 
