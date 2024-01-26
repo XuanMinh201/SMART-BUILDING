@@ -68,8 +68,8 @@ uint16_t co2 = 0;
 float temperature = 0.0f;
 float humidity = 0.0f;
 int it=0; // iteration for PIR
-uint8_t PIR_array[100];
-uint8_t Sound_array[100];
+uint8_t PIR_array[12];
+uint8_t Sound_array[12];
 
 
 void printUint16Hex(uint16_t value) {
@@ -805,15 +805,14 @@ void PIR_statr() {
 }
 
 int sound_meas() {  
-  digitalWrite(PB2,HIGH);
-  delay(50);
+  
 int sound =0;
-
-for (int i=0;i<25;i++){
- sound = sound + digitalRead(PB3);
- delay(5);
+for (int i=0;i<20;i++){
+ if( analogRead(PB3)<900) {
+ sound++;}
+ delay(10); 
   }
-  digitalWrite(PB2,LOW);
+  //digitalWrite(PB2,LOW);
   return sound;     
 }
 
@@ -967,14 +966,14 @@ int send(SERIAL_PORT port, char *cmd, stParam *param)
     Serial.println(g_bme);
 
     int pir_tot=0;
-    for(int i=0; i<100;i++){
+    for(int i=0; i<12;i++){
       pir_tot=pir_tot+PIR_array[i];
     }
     Serial.print("PIR=");
     Serial.println(pir_tot);
 
     int sound_tot=0;
-    for(int i=0; i<100;i++){
+    for(int i=0; i<12;i++){
       sound_tot=sound_tot+Sound_array[i];
     }
     Serial.print("Sound=");
@@ -1034,6 +1033,8 @@ void setup()
   pinMode(LED, OUTPUT);
   digitalWrite(LED, LOW);
   pinMode(PB2, OUTPUT);
+  digitalWrite(PB2,HIGH);
+  
 
   scd41();
 
@@ -1049,7 +1050,7 @@ void setup()
   BME680.setOversampling(HumiditySensor, Oversample16);     // Use enumerated type values
   BME680.setOversampling(PressureSensor, Oversample16);     // Use enumerated type values
   BME680.setIIRFilter(IIR4);  // Use enumerated type values
-  BME680.setGas(320, 150);  // 320�c for 150 milliseconds
+  BME680.setGas(320, 50);  // 320�c for 150 milliseconds
 
   KX023_Status_t status = myIMU.begin();
   myIMU.configAsynchronousReadBackAccelerationData(KX023_ACCLERATION_RANGE_2G, KX023_ODR_25HZ);
@@ -1107,10 +1108,11 @@ void loop()
       
       if (currentMillis - getSensorDataPrevMillis > DATA_INTERVAL){
         getSensorDataPrevMillis = currentMillis;
-        PIR_array[it] = digitalRead(PIR);
+        bool pir = digitalRead(PIR);
         Sound_array[it] = sound_meas();
+        PIR_array[it] = digitalRead(PIR) && pir;
         it++;
-        if(it==100){it=0;}
+        if(it==12){it=0;}
   }
   //api.system.sleep.all(500);
 
